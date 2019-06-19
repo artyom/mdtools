@@ -1,0 +1,24 @@
+Command mdmovearound helps when reorganizing set of cross-referencing
+markdown (.md) files. It should be run once before moving/renaming files,
+and then run again to update broken cross-links.
+
+It works by first recursively traversing directory making list of all
+non-hidden files along with hashes of their contents. Once such list is
+built and saved, on next call it loads list from previous run, builds list
+once again for current directory state, then checks each markdown file (.md)
+from this new list, trying to reconstruct broken links by finding file
+renames via old and new hash lists. Upon successful completion it updates
+saved list with current state.
+
+Because it works by figuring out renames looking at file content hashes, it
+only works for files that were NOT modified between calls to this program.
+
+Since it may potentially update multiple files, the whole operation is not
+atomic, so it is advisable to only run it over files versioned by VCS, so
+that in case of any errors original files can be easily restored.
+
+Currently only inline links like [link](dst.md) are supported; links like
+[link][id] are NOT supported. The reason for this is that links are updated
+by substring replacements inside text, this may lead to some invalid
+replacements, and handling only inline links reduces risk of invalid
+replacements. Please check results before committing them.
