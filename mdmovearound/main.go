@@ -28,7 +28,6 @@ import (
 	"bufio"
 	"crypto/sha256"
 	"encoding/hex"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -317,12 +316,7 @@ const extensions = parser.CommonExtensions | parser.AutoHeadingIDs ^ parser.Math
 
 func init() {
 	log.SetFlags(0)
-	flag.Usage = func() {
-		fmt.Fprintln(flag.CommandLine.Output(), usage)
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [flags]\n", filepath.Base(os.Args[0]))
-		flag.PrintDefaults()
-	}
 }
 
 //go:generate sh -c "go doc >README"
-//go:generate go run update_usage.go
+//go:generate usagegen -autohelp
