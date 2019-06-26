@@ -1,9 +1,12 @@
 # mdurlcheck test
 
+<a id="html-link"></a>
+
 ## Duplicate Subheading
 
 * [Valid link](//example.com)
 * [Valid link](#mdurlcheck-test)
+* [Valid link](#html-link)
 * ![valid image](hello.md)
 * [Valid link](./hello.md)
 * [Valid link](broken.md#mdurlcheck-test)
