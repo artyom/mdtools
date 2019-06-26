@@ -17,10 +17,14 @@
 // The program will check whether files doc1.md, doc2.md, dir/doc.md, and
 // img/screenshot.jpg exist on disk, relative to the location of provided file.
 //
+// If markdown file has any embedded html, this tool also parses such html
+// taking into account all name or id attributes on html tags.
+//
 // Program reports any errors on stderr and exits with non-zero exit code.
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -29,9 +33,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/parser"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 func main() {
@@ -173,6 +180,19 @@ func extractRefs(doc ast.Node) map[string]struct{} {
 		if !entering {
 			return ast.GoToNext
 		}
+		var htmlData []byte
+		switch n := node.(type) {
+		case *ast.HTMLSpan:
+			htmlData = n.Literal
+		case *ast.HTMLBlock:
+			htmlData = n.Literal
+		}
+		if len(htmlData) > 0 {
+			for _, s := range extractRefsHTML(htmlData) {
+				idRefs[s] = struct{}{}
+			}
+			return ast.GoToNext
+		}
 		if n, ok := node.(*ast.Heading); ok && n.HeadingID != "" {
 			if _, ok := idRefs[n.HeadingID]; !ok {
 				idRefs[n.HeadingID] = struct{}{}
@@ -238,8 +258,38 @@ func (m refMap) hasRef(file, ref string) (bool, bool) {
 
 func (m refMap) setRefs(file string, refs map[string]struct{}) { m[file] = refs }
 
+// extractRefsHTML takes piece of html markup, parses it and returns values of
+// any name or id attributes found.
+func extractRefsHTML(b []byte) []string {
+	if !utf8.Valid(b) {
+		return nil
+	}
+	var out []string
+	z := html.NewTokenizer(bytes.NewReader(b))
+	for {
+		switch z.Next() {
+		case html.ErrorToken:
+			return out
+		case html.StartTagToken, html.SelfClosingTagToken:
+			for _, hasAttr := z.TagName(); hasAttr; {
+				var k, v []byte
+				k, v, hasAttr = z.TagAttr()
+				if len(v) == 0 {
+					continue
+				}
+				switch atom.Lookup(k) {
+				case atom.Id, atom.Name:
+					out = append(out, string(v))
+				}
+			}
+		}
+	}
+}
+
 const extensions = parser.CommonExtensions | parser.AutoHeadingIDs ^ parser.MathJax
 
 const unstableSlugFormat = "%s: %q: unstable slug reference, may become incorrect on unrelated header changes"
 
 func init() { log.SetFlags(0) }
+
+//go:generate sh -c "go doc >README"
