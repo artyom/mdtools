@@ -12,6 +12,7 @@
 * [Valid link](broken.md#mdurlcheck-test)
 * [Valid link to directory](../testdata)
 * [Valid link to second duplicate subheading](#duplicate-subheading-1)
+* [Valid link to non-md file with id](non-md.txt#id)
 
 ## Duplicate Subheading
 
