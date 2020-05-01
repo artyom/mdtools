@@ -145,7 +145,7 @@ func processFile(name string, intrefs refMap) error {
 
 		if !exists(filename) {
 			hadErrors = true
-			log.Printf("%s: %q: broken link\n", name, dst)
+			log.Printf("%s: %q: broken link", name, dst)
 		}
 		if u.Fragment != "" && strings.HasSuffix(filename, ".md") {
 			okf, okr := intrefs.hasRef(filename, u.Fragment)
