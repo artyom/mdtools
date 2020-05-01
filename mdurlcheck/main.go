@@ -135,10 +135,17 @@ func processFile(name string, intrefs refMap) error {
 		if u.Scheme != "" || u.Host != "" || u.Path == "" {
 			return ast.GoToNext
 		}
-		filename := filepath.Join(filepath.Dir(name), filepath.FromSlash(u.Path))
+
+		var filename string
+		if strings.HasPrefix(u.Path, "/") && false {
+			filename = filepath.Join(".", filepath.FromSlash(u.Path))
+		} else {
+			filename = filepath.Join(filepath.Dir(name), filepath.FromSlash(u.Path))
+		}
+
 		if !exists(filename) {
 			hadErrors = true
-			log.Printf("%s: %q: broken link", name, dst)
+			log.Printf("%s: %q: broken link\n", name, dst)
 		}
 		if u.Fragment != "" && strings.HasSuffix(filename, ".md") {
 			okf, okr := intrefs.hasRef(filename, u.Fragment)

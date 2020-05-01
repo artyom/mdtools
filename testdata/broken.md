@@ -9,6 +9,7 @@
 * [Valid link](#html-link)
 * ![valid image](hello.md)
 * [Valid link](./hello.md)
+* [Valid link](/hello.md)
 * [Valid link](broken.md#mdurlcheck-test)
 * [Valid link to directory](../testdata)
 * [Valid link to second duplicate subheading](#duplicate-subheading-1)
