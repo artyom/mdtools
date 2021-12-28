@@ -1,0 +1,5 @@
+-   id: mdurlcheck
+    name: Check markdown URLs correctness
+    entry: mdurlcheck
+    language: golang
+    types: [markdown]
